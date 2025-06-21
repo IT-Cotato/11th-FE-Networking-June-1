@@ -85,7 +85,7 @@ const tasks: Task[] = [
     assigneeId: 107,
   },
 ];
-let nextTaskId = 6;
+let nextTaskId = 8;
 
 // --- API 핸들러  ---
 export const handlers = [
@@ -144,6 +144,7 @@ export const handlers = [
         { status: 404 }
       );
     }
+
     tasks[taskIndex].status = status;
     await delay(300);
     return HttpResponse.json(tasks[taskIndex]);
