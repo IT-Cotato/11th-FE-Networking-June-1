@@ -53,11 +53,21 @@ CSS의 경우, 파트원분들이 선호하는 라이브러리가 다 달라서 
 
 ---
 
+## Git 사용법 
 
+- 본 과제는 해당 repository를 fork하는 방식이 아닌 clone을 통해 진행
+  
+- 본 repository를 clone한 이후 본인 이름으로 branch를 생성 후 작업 (예시: git checkout -b kitak)
+  
+- 과제 구현 이후 본 repository의 develop branch를 target으로 Pull Request 작성
+  
+- PR 제목 : [Refactor]: (이름) 6월 파트별 네트워킹 과제 제출
+ 
 
-### 4\. Pull Request(PR) 작성 표준 템플릿
+--- 
 
-**PR 제목 : [Refactor]: (이름) 6월 파트별 네트워킹 과제 제출**
+## Pull Request(PR) 작성 표준 템플릿
+
 
 리팩토링 작업 완료 후, 아래의 표준 템플릿을 활용하여 PR을 작성하여 다른 프론트엔드 파트원들이 보았을 때, 이해를 도울 수 있게 PR을 작성할 것
 탬플릿을 사용하는 것을 권장하지만, 자신의 코드를 더 잘 설명할 수 있는 방향이 있으면 원하시는대로 PR 탬플릿을 가져오셔도 좋습니다!  
