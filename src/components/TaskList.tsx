@@ -1,15 +1,15 @@
 import React from "react";
 import TaskItem from "./TaskItem";
-import type { StatusFilter, Task, User, Theme } from "../types";
+import type { Task, User, Theme, Status } from "../types";
 
 interface TaskListProps {
   tasks: Task[];
   users: User[];
-  filterStatus: StatusFilter;
+  filterStatus: string;
   searchTerm: string;
-  onFilterChange: (val: StatusFilter) => void;
-  onSearchChange: (val: string) => void;
-  onStatusChange: (taskId: number, newStatus: Task["status"]) => void;
+  onFilterChange: (value: string) => void;
+  onSearchChange: (value: string) => void;
+  onStatusChange: (taskId: number, newStatus: Status) => void;
   isLoading: boolean;
   theme: Theme;
 }
@@ -87,7 +87,9 @@ const TaskList: React.FC<TaskListProps> = ({
           />
           <select
             value={filterStatus}
-            onChange={(e) => onFilterChange(e.target.value as StatusFilter)}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              onFilterChange(e.target.value)
+            }
             style={{
               padding: "8px 12px",
               border: `1px solid ${theme.border}`,

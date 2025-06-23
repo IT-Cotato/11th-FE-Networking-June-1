@@ -1,11 +1,8 @@
 import React from "react";
 import type { User, Theme } from "../types";
+import { useNewTaskForm } from "../hooks/useNewTaskForm";
 
-interface TaskFormProps {
-  newTaskTitle: string;
-  setNewTaskTitle: (val: string) => void;
-  newTaskAssignee: string;
-  setNewTaskAssignee: (val: string) => void;
+export interface TaskFormProps {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   users: User[];
   isLoading: boolean;
@@ -13,15 +10,14 @@ interface TaskFormProps {
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({
-  newTaskTitle,
-  setNewTaskTitle,
-  newTaskAssignee,
-  setNewTaskAssignee,
   onSubmit,
   users,
   isLoading,
   theme,
 }) => {
+  const { newTaskTitle, setNewTaskTitle, newTaskAssignee, setNewTaskAssignee } =
+    useNewTaskForm();
+
   return (
     <div
       style={{

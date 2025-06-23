@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { useProjects } from "./hooks/useProjects";
 import { useUsers } from "./hooks/useUsers";
 import { useTasks } from "./hooks/useTasks";
 import { useTheme } from "./hooks/useTheme";
+import { useNewTaskForm } from "./hooks/useNewTaskForm";
+import { useTaskFilters } from "./hooks/useTaskFilters";
 import Header from "./components/Header";
 import ProjectList from "./components/ProjectList";
 import TaskForm from "./components/TaskForm";
@@ -10,13 +12,7 @@ import TaskList from "./components/TaskList";
 import type { Status, StatusFilter } from "./types";
 
 function App() {
-  // --- 필터 및 입력값 상태 ---
-  const [filterStatus, setFilterStatus] = useState<StatusFilter>("All");
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [newTaskTitle, setNewTaskTitle] = useState<string>("");
-  const [newTaskAssignee, setNewTaskAssignee] = useState<string>("");
-
-  // --- 커스텀 훅 ---
+  // 프로젝트 관련 상태
   const {
     projects,
     selectedProjectId,
@@ -25,12 +21,18 @@ function App() {
     projectError,
   } = useProjects();
 
+  // TaskForm 관련 상태 (사용자 초기화 + 상태 공유)
+  const { newTaskTitle, newTaskAssignee, setNewTaskAssignee, resetForm } =
+    useNewTaskForm();
+
+  // 사용자 관련 상태
   const { users, isLoadingUsers, userError } = useUsers((firstId) => {
     if (newTaskAssignee === "") {
       setNewTaskAssignee(firstId);
     }
   });
 
+  // 할 일 관련 상태
   const {
     tasks,
     isLoading: isLoadingTasks,
@@ -39,25 +41,36 @@ function App() {
     updateTaskStatus,
   } = useTasks(selectedProjectId);
 
+  // 필터 상태
+  const { filterStatus, setFilterStatus, searchTerm, setSearchTerm } =
+    useTaskFilters();
+
+  // 테마 관련 상태
   const { themeName, theme: currentTheme, toggleTheme } = useTheme();
 
-  // --- 에러 병합 ---
+  // 종합 에러 및 로딩
   const error = projectError || userError || taskError;
+  const isLoading = isLoadingProjects || isLoadingUsers || isLoadingTasks;
 
-  // --- 할 일 추가 핸들러 ---
+  // 새 할 일 추가
   const handleAddTask = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newTaskTitle || !newTaskAssignee) return;
     addTask(newTaskTitle, parseInt(newTaskAssignee));
-    setNewTaskTitle("");
+    resetForm();
   };
 
-  // --- 상태 변경 핸들러 ---
+  // 할 일 상태 변경
   const handleStatusChange = (taskId: number, newStatus: Status) => {
     updateTaskStatus(taskId, newStatus);
   };
 
-  const isLoading = isLoadingProjects || isLoadingUsers || isLoadingTasks;
+  // 프로젝트 변경 시 필터 초기화
+  useEffect(() => {
+    resetForm();
+    setFilterStatus("All");
+    setSearchTerm("");
+  }, [selectedProjectId, resetForm, setFilterStatus, setSearchTerm]);
 
   return (
     <div
@@ -108,22 +121,17 @@ function App() {
           style={{ display: "flex", flexDirection: "column", gap: "20px" }}
         >
           <TaskForm
-            newTaskTitle={newTaskTitle}
-            setNewTaskTitle={setNewTaskTitle}
-            newTaskAssignee={newTaskAssignee}
-            setNewTaskAssignee={setNewTaskAssignee}
             onSubmit={handleAddTask}
             users={users}
             isLoading={isLoading}
             theme={currentTheme}
           />
-
           <TaskList
             tasks={tasks}
             users={users}
             filterStatus={filterStatus}
             searchTerm={searchTerm}
-            onFilterChange={setFilterStatus}
+            onFilterChange={(value) => setFilterStatus(value as StatusFilter)}
             onSearchChange={setSearchTerm}
             onStatusChange={handleStatusChange}
             isLoading={isLoadingTasks}
