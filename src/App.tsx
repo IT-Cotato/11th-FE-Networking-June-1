@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Header from "./components/Header";
 import ProjectList from "./components/ProjectList";
+import TaskForm from "./components/TaskForm";
 
 // --- 타입 정의 ---
 interface Project {
@@ -275,105 +276,16 @@ function App() {
         <section
           style={{ display: "flex", flexDirection: "column", gap: "20px" }}
         >
-          <div
-            style={{
-              backgroundColor: currentTheme.componentBg,
-              padding: "20px",
-              borderRadius: "12px",
-              boxShadow: currentTheme.cardShadow,
-              border: `1px solid ${currentTheme.border}`,
-            }}
-          >
-            <h3
-              style={{
-                margin: "0 0 16px 0",
-                fontSize: "18px",
-                fontWeight: "600",
-                color: currentTheme.text,
-              }}
-            >
-              새로운 할 일 추가
-            </h3>
-            <form
-              onSubmit={handleAddTask}
-              style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}
-            >
-              <input
-                type="text"
-                value={newTaskTitle}
-                onChange={(e) => setNewTaskTitle(e.target.value)}
-                placeholder="할 일 제목을 입력하세요..."
-                style={{
-                  flex: "1",
-                  minWidth: "200px",
-                  padding: "10px 12px",
-                  border: `1px solid ${currentTheme.border}`,
-                  borderRadius: "8px",
-                  fontSize: "14px",
-                  backgroundColor: currentTheme.inputBg,
-                  color: currentTheme.text,
-                  transition: "border-color 0.2s ease",
-                  outline: "none",
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = "#8b5cf6";
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = currentTheme.border;
-                }}
-              />
-              <select
-                value={newTaskAssignee}
-                onChange={(e) => setNewTaskAssignee(e.target.value)}
-                style={{
-                  padding: "10px 12px",
-                  border: `1px solid ${currentTheme.border}`,
-                  borderRadius: "8px",
-                  fontSize: "14px",
-                  backgroundColor: currentTheme.inputBg,
-                  color: currentTheme.text,
-                  minWidth: "140px",
-                  cursor: "pointer",
-                  outline: "none",
-                }}
-                disabled={isLoadingUsers}
-              >
-                {users.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.name}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="submit"
-                disabled={isLoading}
-                style={{
-                  padding: "10px 20px",
-                  cursor: isLoading ? "not-allowed" : "pointer",
-                  background: isLoading ? "#9ca3af" : currentTheme.buttonBg,
-                  color: currentTheme.buttonText,
-                  border: "none",
-                  borderRadius: "8px",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  transition: "all 0.2s ease",
-                  opacity: isLoading ? 0.6 : 1,
-                }}
-                onMouseEnter={(e) => {
-                  if (!isLoading) {
-                    e.currentTarget.style.opacity = "0.9";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isLoading) {
-                    e.currentTarget.style.opacity = "1";
-                  }
-                }}
-              >
-                {isLoading ? "추가 중..." : "추가"}
-              </button>
-            </form>
-          </div>
+          <TaskForm
+            newTaskTitle={newTaskTitle}
+            setNewTaskTitle={setNewTaskTitle}
+            newTaskAssignee={newTaskAssignee}
+            setNewTaskAssignee={setNewTaskAssignee}
+            onSubmit={handleAddTask}
+            users={users}
+            isLoading={isLoading}
+            theme={currentTheme}
+          />
 
           <div
             style={{
