@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useProjects } from "./hooks/useProjects";
 import { useUsers } from "./hooks/useUsers";
 import { useTheme } from "./hooks/useTheme";
@@ -31,11 +31,14 @@ function App() {
     useNewTaskForm();
 
   // 사용자 데이터
-  const { users, isLoadingUsers, userError } = useUsers((firstId) => {
-    if (newTaskAssignee === "") {
-      setNewTaskAssignee(firstId);
-    }
-  });
+  const handleFirstUserId = useCallback(
+    (firstId: string) => {
+      setNewTaskAssignee((prev) => (prev === "" ? firstId : prev));
+    },
+    [setNewTaskAssignee]
+  );
+
+  const { users, isLoadingUsers, userError } = useUsers(handleFirstUserId);
 
   // 할 일 데이터
   const {
