@@ -1,228 +1,63 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useProjects } from "./hooks/useProjects";
+import { useUsers } from "./hooks/useUsers";
+import { useTasks } from "./hooks/useTasks";
+import { useTheme } from "./hooks/useTheme";
 import Header from "./components/Header";
 import ProjectList from "./components/ProjectList";
 import TaskForm from "./components/TaskForm";
 import TaskList from "./components/TaskList";
-
-// --- 타입 정의 ---
-interface Project {
-  id: number;
-  name: string;
-}
-
-interface User {
-  id: number;
-  name: string;
-}
-
-interface Task {
-  id: number;
-  projectId: number;
-  title: string;
-  status: Status;
-  assigneeId: number;
-}
-
-export type Status = "To Do" | "In Progress" | "Done";
-export type StatusFilter = "All" | Status;
-
-interface Theme {
-  background: string;
-  text: string;
-  componentBg: string;
-  border: string;
-  buttonBg: string;
-  buttonText: string;
-  selectedItemBg: string;
-  selectedItemText: string;
-  cardShadow: string;
-  hoverBg: string;
-  inputBg: string;
-  statusColors: {
-    "To Do": string;
-    "In Progress": string;
-    Done: string;
-  };
-  error: {
-    background: string;
-    color: string;
-    border: string;
-  };
-}
-
-type ThemeName = "light" | "dark";
-
-// --- 스타일 객체 ---
-const themes: Record<ThemeName, Theme> = {
-  light: {
-    background: "#fafafa",
-    text: "#1a1a1a",
-    componentBg: "#ffffff",
-    border: "#e5e7eb",
-    buttonBg: "#8b5cf6",
-    buttonText: "#ffffff",
-    selectedItemBg: "#8b5cf6",
-    selectedItemText: "#ffffff",
-    cardShadow: "0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1)",
-    hoverBg: "#f9fafb",
-    inputBg: "#ffffff",
-    statusColors: {
-      "To Do": "#ef4444",
-      "In Progress": "#f59e0b",
-      Done: "#10b981",
-    },
-    error: {
-      background: "#fef2f2",
-      color: "#dc2626",
-      border: "#fecaca",
-    },
-  },
-  dark: {
-    background: "#0a0a0a",
-    text: "#f5f5f5",
-    componentBg: "#1a1a1a",
-    border: "#2a2a2a",
-    buttonBg: "#8b5cf6",
-    buttonText: "#ffffff",
-    selectedItemBg: "#8b5cf6",
-    selectedItemText: "#ffffff",
-    cardShadow: "0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.4)",
-    hoverBg: "#262626",
-    inputBg: "#1a1a1a",
-    statusColors: {
-      "To Do": "#f87171",
-      "In Progress": "#fbbf24",
-      Done: "#34d399",
-    },
-    error: {
-      background: "#1f1415",
-      color: "#fca5a5",
-      border: "#3f1518",
-    },
-  },
-};
+// import type { Status, StatusFilter } from "./types";
 
 function App() {
-  // --- 상태 타입 지정 ---
-  const [themeName, setThemeName] = useState<ThemeName>("light");
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(
-    null
-  );
-
-  const [isLoadingProjects, setIsLoadingProjects] = useState<boolean>(false);
-  const [isLoadingTasks, setIsLoadingTasks] = useState<boolean>(false);
-  const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
+  // --- 필터 및 입력값 상태 ---
   const [filterStatus, setFilterStatus] = useState<StatusFilter>("All");
   const [searchTerm, setSearchTerm] = useState<string>("");
-
   const [newTaskTitle, setNewTaskTitle] = useState<string>("");
   const [newTaskAssignee, setNewTaskAssignee] = useState<string>("");
 
-  // --- 데이터 페칭 로직 ---
-  useEffect(() => {
-    setIsLoadingProjects(true);
-    setIsLoadingUsers(true);
-    fetch("/api/projects")
-      .then((res) => {
-        if (!res.ok) throw new Error("Network response was not ok");
-        return res.json();
-      })
-      .then((data: Project[]) => {
-        setProjects(data);
-        if (data.length > 0) {
-          setSelectedProjectId((prevId) => {
-            if (prevId === null) {
-              return data[0].id;
-            }
-            return prevId;
-          });
-        }
-      })
-      .catch((err: Error) => setError(`프로젝트 로딩 실패: ${err.message}`))
-      .finally(() => setIsLoadingProjects(false));
-    fetch("/api/users")
-      .then((res) => {
-        if (!res.ok) throw new Error("Network response was not ok");
-        return res.json();
-      })
-      .then((data: User[]) => {
-        setUsers(data);
-        if (data.length > 0) {
-          setNewTaskAssignee((prevAssignee) => {
-            if (prevAssignee === "") {
-              return String(data[0].id);
-            }
+  // --- 커스텀 훅 ---
+  const {
+    projects,
+    selectedProjectId,
+    setSelectedProjectId,
+    isLoadingProjects,
+    projectError,
+  } = useProjects();
 
-            return prevAssignee;
-          });
-        }
-      })
-      .catch((err: Error) => setError(`사용자 로딩 실패: ${err.message}`))
-      .finally(() => setIsLoadingUsers(false));
-  }, []);
+  const { users, isLoadingUsers, userError } = useUsers((firstId) => {
+    if (newTaskAssignee === "") {
+      setNewTaskAssignee(firstId);
+    }
+  });
 
-  useEffect(() => {
-    if (selectedProjectId === null) return;
-    setIsLoadingTasks(true);
-    fetch(`/api/tasks?projectId=${selectedProjectId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Network response was not ok");
-        return res.json();
-      })
-      .then((data: Task[]) => setTasks(data))
-      .catch((err: Error) => setError(`할 일 로딩 실패: ${err.message}`))
-      .finally(() => setIsLoadingTasks(false));
-  }, [selectedProjectId]);
+  const {
+    tasks,
+    isLoading: isLoadingTasks,
+    taskError,
+    addTask,
+    updateTaskStatus,
+  } = useTasks(selectedProjectId);
 
-  // --- 이벤트 핸들러 ---
-  const handleAddTask = async (e: React.FormEvent<HTMLFormElement>) => {
+  const { themeName, theme: currentTheme, toggleTheme } = useTheme();
+
+  // --- 에러 병합 ---
+  const error = projectError || userError || taskError;
+
+  // --- 할 일 추가 핸들러 ---
+  const handleAddTask = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!newTaskTitle || !newTaskAssignee || selectedProjectId === null) return;
-
-    const newTaskPayload = {
-      projectId: selectedProjectId,
-      title: newTaskTitle,
-      status: "To Do" as Status,
-      assigneeId: parseInt(newTaskAssignee),
-    };
-
-    const response = await fetch("/api/tasks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newTaskPayload),
-    });
-    const addedTask: Task = await response.json();
-    setTasks((prev) => [...prev, addedTask]);
+    if (!newTaskTitle || !newTaskAssignee) return;
+    addTask(newTaskTitle, parseInt(newTaskAssignee));
     setNewTaskTitle("");
   };
 
-  const handleStatusChange = async (taskId: number, newStatus: Status) => {
-    const response = await fetch(`/api/tasks/${taskId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
-    });
-    const updatedTask: Task = await response.json();
-    setTasks((prev) => prev.map((t) => (t.id === taskId ? updatedTask : t)));
+  // --- 상태 변경 핸들러 ---
+  const handleStatusChange = (taskId: number, newStatus: Status) => {
+    updateTaskStatus(taskId, newStatus);
   };
 
-  // // --- 필터링/검색 로직 ---
-  // const filteredTasks = useMemo(() => {
-  //   return tasks
-  //     .filter((task) => filterStatus === "All" || task.status === filterStatus)
-  //     .filter((task) =>
-  //       task.title.toLowerCase().includes(searchTerm.toLowerCase())
-  //     );
-  // }, [tasks, filterStatus, searchTerm]);
-
-  // --- UI 렌더링 ---
-  const currentTheme = themes[themeName];
-  const isLoading = isLoadingProjects || isLoadingTasks || isLoadingUsers;
+  const isLoading = isLoadingProjects || isLoadingUsers || isLoadingTasks;
 
   return (
     <div
@@ -236,12 +71,7 @@ function App() {
         transition: "background-color 0.2s ease, color 0.2s ease",
       }}
     >
-      <Header
-        themeName={themeName}
-        onToggleTheme={() =>
-          setThemeName((t) => (t === "light" ? "dark" : "light"))
-        }
-      />
+      <Header themeName={themeName} onToggleTheme={toggleTheme} />
 
       {error && (
         <div
