@@ -1,13 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useProjectStore } from "../stores/useProjectStore";
 import type { Project } from "../types";
 
 export const useProjects = () => {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(
-    null
-  );
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const { setProjects, setSelectedProjectId, setIsLoading, setError } =
+    useProjectStore();
 
   useEffect(() => {
     setIsLoading(true);
@@ -21,16 +18,13 @@ export const useProjects = () => {
         if (data.length > 0) {
           setSelectedProjectId((prev) => prev ?? data[0].id);
         }
+        setError(null);
       })
-      .catch((err) => setError(`프로젝트 로딩 실패: ${err.message}`))
-      .finally(() => setIsLoading(false));
-  }, []);
-
-  return {
-    projects,
-    selectedProjectId,
-    setSelectedProjectId,
-    isLoadingProjects: isLoading,
-    projectError: error,
-  };
+      .catch((err) => {
+        setError(`프로젝트 로딩 실패: ${err.message}`);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [setProjects, setSelectedProjectId, setIsLoading, setError]);
 };

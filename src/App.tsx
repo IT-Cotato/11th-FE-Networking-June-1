@@ -1,38 +1,44 @@
 import React, { useEffect } from "react";
-import { useProjects } from "./hooks/useProjects";
+import { useProjects } from "./hooks/useProjects"; // fetch + 전역 store 업데이트만 담당
 import { useUsers } from "./hooks/useUsers";
 import { useTasks } from "./hooks/useTasks";
 import { useTheme } from "./hooks/useTheme";
 import { useNewTaskForm } from "./hooks/useNewTaskForm";
 import { useTaskFilters } from "./hooks/useTaskFilters";
+import { useProjectStore } from "./stores/useProjectStore";
+
 import Header from "./components/Header";
 import ProjectList from "./components/ProjectList";
 import TaskForm from "./components/TaskForm";
 import TaskList from "./components/TaskList";
+
 import type { Status, StatusFilter } from "./types";
 
 function App() {
-  // 프로젝트 관련 상태
+  // 전역 프로젝트 상태
   const {
     projects,
     selectedProjectId,
     setSelectedProjectId,
-    isLoadingProjects,
-    projectError,
-  } = useProjects();
+    isLoading,
+    error: projectError,
+  } = useProjectStore();
 
-  // TaskForm 관련 상태 (사용자 초기화 + 상태 공유)
+  // 프로젝트 데이터 초기 로딩 (1회)
+  useProjects();
+
+  // TaskForm 상태
   const { newTaskTitle, newTaskAssignee, setNewTaskAssignee, resetForm } =
     useNewTaskForm();
 
-  // 사용자 관련 상태
+  // 사용자 데이터
   const { users, isLoadingUsers, userError } = useUsers((firstId) => {
     if (newTaskAssignee === "") {
       setNewTaskAssignee(firstId);
     }
   });
 
-  // 할 일 관련 상태
+  // 할 일 데이터
   const {
     tasks,
     isLoading: isLoadingTasks,
@@ -41,16 +47,16 @@ function App() {
     updateTaskStatus,
   } = useTasks(selectedProjectId);
 
-  // 필터 상태
+  // 필터
   const { filterStatus, setFilterStatus, searchTerm, setSearchTerm } =
     useTaskFilters();
 
-  // 테마 관련 상태
+  // 테마
   const { themeName, theme: currentTheme, toggleTheme } = useTheme();
 
-  // 종합 에러 및 로딩
+  // 종합 로딩/에러
   const error = projectError || userError || taskError;
-  const isLoading = isLoadingProjects || isLoadingUsers || isLoadingTasks;
+  const isLoadingAll = isLoading || isLoadingUsers || isLoadingTasks;
 
   // 새 할 일 추가
   const handleAddTask = (e: React.FormEvent<HTMLFormElement>) => {
@@ -65,7 +71,7 @@ function App() {
     updateTaskStatus(taskId, newStatus);
   };
 
-  // 프로젝트 변경 시 필터 초기화
+  // 프로젝트 변경 시 필터 및 폼 초기화
   useEffect(() => {
     resetForm();
     setFilterStatus("All");
@@ -113,7 +119,7 @@ function App() {
           projects={projects}
           selectedProjectId={selectedProjectId}
           onSelectProject={setSelectedProjectId}
-          isLoading={isLoadingProjects}
+          isLoading={isLoading}
           theme={currentTheme}
         />
 
@@ -123,7 +129,7 @@ function App() {
           <TaskForm
             onSubmit={handleAddTask}
             users={users}
-            isLoading={isLoading}
+            isLoading={isLoadingAll}
             theme={currentTheme}
           />
           <TaskList
