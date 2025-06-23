@@ -1,12 +1,11 @@
 import React, { useEffect } from "react";
-import { useProjects } from "./hooks/useProjects"; // fetch + 전역 store 업데이트만 담당
+import { useProjects } from "./hooks/useProjects";
 import { useUsers } from "./hooks/useUsers";
-import { useTasks } from "./hooks/useTasks";
 import { useTheme } from "./hooks/useTheme";
 import { useNewTaskForm } from "./hooks/useNewTaskForm";
 import { useTaskFilters } from "./hooks/useTaskFilters";
 import { useProjectStore } from "./stores/useProjectStore";
-
+import { useTaskStore } from "./stores/useTaskStore";
 import Header from "./components/Header";
 import ProjectList from "./components/ProjectList";
 import TaskForm from "./components/TaskForm";
@@ -42,10 +41,18 @@ function App() {
   const {
     tasks,
     isLoading: isLoadingTasks,
-    taskError,
+    error: taskError,
+    fetchTasks,
     addTask,
     updateTaskStatus,
-  } = useTasks(selectedProjectId);
+  } = useTaskStore();
+
+  // 프로젝트 변경 시 할 일 목록 로드
+  useEffect(() => {
+    if (selectedProjectId) {
+      fetchTasks(selectedProjectId);
+    }
+  }, [selectedProjectId, fetchTasks]);
 
   // 필터
   const { filterStatus, setFilterStatus, searchTerm, setSearchTerm } =
@@ -61,8 +68,8 @@ function App() {
   // 새 할 일 추가
   const handleAddTask = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!newTaskTitle || !newTaskAssignee) return;
-    addTask(newTaskTitle, parseInt(newTaskAssignee));
+    if (!newTaskTitle || !newTaskAssignee || selectedProjectId === null) return;
+    addTask(newTaskTitle, parseInt(newTaskAssignee), selectedProjectId);
     resetForm();
   };
 
