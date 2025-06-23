@@ -1,22 +1,5 @@
 import React from "react";
-
-interface Task {
-  id: number;
-  title: string;
-  status: "To Do" | "In Progress" | "Done";
-}
-
-interface Theme {
-  componentBg: string;
-  hoverBg: string;
-  text: string;
-  border: string;
-  statusColors: {
-    "To Do": string;
-    "In Progress": string;
-    Done: string;
-  };
-}
+import type { Task, Theme } from "../types";
 
 interface TaskItemProps {
   task: Task;

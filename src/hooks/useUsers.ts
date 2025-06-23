@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
-
-export interface User {
-  id: number;
-  name: string;
-}
+import type { User } from "../types";
 
 export const useUsers = (onFirstUserId?: (id: string) => void) => {
   const [users, setUsers] = useState<User[]>([]);

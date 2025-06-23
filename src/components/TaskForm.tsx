@@ -1,17 +1,5 @@
 import React from "react";
-
-interface User {
-  id: number;
-  name: string;
-}
-
-interface Theme {
-  inputBg: string;
-  text: string;
-  border: string;
-  buttonBg: string;
-  buttonText: string;
-}
+import type { User, Theme } from "../types";
 
 interface TaskFormProps {
   newTaskTitle: string;

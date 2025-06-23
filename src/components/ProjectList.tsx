@@ -1,19 +1,5 @@
 import React from "react";
-
-interface Project {
-  id: number;
-  name: string;
-}
-
-interface Theme {
-  text: string;
-  selectedItemBg: string;
-  selectedItemText: string;
-  border: string;
-  cardShadow: string;
-  componentBg: string;
-  hoverBg: string;
-}
+import type { Project, Theme } from "../types";
 
 interface ProjectListProps {
   projects: Project[];

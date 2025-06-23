@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
-
-export interface Project {
-  id: number;
-  name: string;
-}
+import type { Project } from "../types";
 
 export const useProjects = () => {
   const [projects, setProjects] = useState<Project[]>([]);

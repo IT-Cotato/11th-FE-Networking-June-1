@@ -7,7 +7,7 @@ import Header from "./components/Header";
 import ProjectList from "./components/ProjectList";
 import TaskForm from "./components/TaskForm";
 import TaskList from "./components/TaskList";
-// import type { Status, StatusFilter } from "./types";
+import type { Status, StatusFilter } from "./types";
 
 function App() {
   // --- 필터 및 입력값 상태 ---

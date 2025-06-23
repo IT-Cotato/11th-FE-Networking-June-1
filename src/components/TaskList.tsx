@@ -1,33 +1,6 @@
 import React from "react";
 import TaskItem from "./TaskItem";
-import type { StatusFilter } from "../App";
-
-interface Task {
-  id: number;
-  projectId: number;
-  title: string;
-  status: "To Do" | "In Progress" | "Done";
-  assigneeId: number;
-}
-
-interface User {
-  id: number;
-  name: string;
-}
-
-interface Theme {
-  inputBg: string;
-  text: string;
-  border: string;
-  hoverBg: string;
-  componentBg: string;
-  cardShadow: string;
-  statusColors: {
-    "To Do": string;
-    "In Progress": string;
-    Done: string;
-  };
-}
+import type { StatusFilter, Task, User, Theme } from "../types";
 
 interface TaskListProps {
   tasks: Task[];
