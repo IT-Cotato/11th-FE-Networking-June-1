@@ -57,10 +57,12 @@ interface ThemeStore {
 }
 
 export const useThemeStore = create<ThemeStore>((set, get) => ({
-  themeName: "light",
-  theme: themes.light,
+  themeName: (localStorage.getItem("themeName") as ThemeName) || "light",
+  theme: themes[(localStorage.getItem("themeName") as ThemeName) || "light"],
   toggleTheme: () => {
-    const newThemeName = get().themeName === "light" ? "dark" : "light";
+    const current = get().themeName;
+    const newThemeName = current === "light" ? "dark" : "light";
+    localStorage.setItem("themeName", newThemeName);
     set({ themeName: newThemeName, theme: themes[newThemeName] });
   },
 }));

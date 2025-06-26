@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import type { User } from "../types";
 
+/**
+ * 사용자 목록을 가져오는 커스텀 훅
+ */
 export const useUsers = (onFirstUserId?: (id: string) => void) => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(false);

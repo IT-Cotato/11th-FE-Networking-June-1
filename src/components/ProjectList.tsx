@@ -1,6 +1,7 @@
 import React from "react";
 import type { Project, Theme } from "../types";
 
+// 프로젝트 리스트 사이드바 컴포넌트
 interface ProjectListProps {
   projects: Project[];
   selectedProjectId: number | null;
@@ -17,6 +18,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
   theme,
 }) => {
   return (
+    // 좌측 사이드바 스타일
     <aside
       style={{
         backgroundColor: theme.componentBg,
@@ -29,6 +31,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
         border: `1px solid ${theme.border}`,
       }}
     >
+      {/* 사이드바 제목 */}
       <h2
         style={{
           margin: "0 0 16px 0",
@@ -40,6 +43,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
         프로젝트
       </h2>
 
+      {/* 로딩 중일 때 스피너 표시 */}
       {isLoading ? (
         <div style={{ textAlign: "center", padding: "20px" }}>
           <div
@@ -82,6 +86,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
                 textAlign: "left",
                 width: "100%",
               }}
+              // 선택되지 않은 버튼에만 hover 효과 적용
               onMouseEnter={(e) => {
                 if (selectedProjectId !== p.id) {
                   e.currentTarget.style.backgroundColor = theme.hoverBg;

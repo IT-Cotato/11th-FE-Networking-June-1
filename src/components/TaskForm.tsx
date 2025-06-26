@@ -1,7 +1,8 @@
 import React from "react";
 import type { User, Theme } from "../types";
-import { useNewTaskForm } from "../hooks/useNewTaskForm";
+import { useNewTaskForm } from "../stores/useNewTaskForm";
 
+// 할 일 추가 폼 컴포넌트
 export interface TaskFormProps {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   users: User[];
@@ -15,6 +16,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
   isLoading,
   theme,
 }) => {
+  // 새 할 일의 제목 및 담당자 상태
   const { newTaskTitle, setNewTaskTitle, newTaskAssignee, setNewTaskAssignee } =
     useNewTaskForm();
 
@@ -39,10 +41,12 @@ const TaskForm: React.FC<TaskFormProps> = ({
         새로운 할 일 추가
       </h3>
 
+      {/* 할 일 추가 폼 */}
       <form
         onSubmit={onSubmit}
         style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}
       >
+        {/* 할 일 제목 입력 */}
         <input
           type="text"
           value={newTaskTitle}
@@ -67,6 +71,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
             e.currentTarget.style.borderColor = theme.border;
           }}
         />
+
+        {/* 담당자 선택 */}
         <select
           value={newTaskAssignee}
           onChange={(e) => setNewTaskAssignee(e.target.value)}
@@ -89,6 +95,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
             </option>
           ))}
         </select>
+
+        {/* 추가 버튼 */}
         <button
           type="submit"
           disabled={isLoading}

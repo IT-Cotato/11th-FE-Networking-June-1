@@ -1,16 +1,25 @@
 import { create } from "zustand";
 import type { Task } from "../types";
 
+/**
+ * Zustand 기반 할 일(Task) 상태 저장소
+ */
 interface TaskStore {
   tasks: Task[];
   isLoading: boolean;
   error: string | null;
+
+  /** 특정 프로젝트의 할 일 목록을 서버에서 가져옴 */
   fetchTasks: (projectId: number) => Promise<void>;
+
+  /** 새로운 할 일을 추가 */
   addTask: (
     title: string,
     assigneeId: number,
     projectId: number
   ) => Promise<void>;
+
+  /** 특정 할 일의 상태를 업데이트 */
   updateTaskStatus: (taskId: number, status: Task["status"]) => Promise<void>;
 }
 
@@ -67,14 +76,27 @@ export const useTaskStore = create<TaskStore>((set) => ({
   },
 
   updateTaskStatus: async (taskId, status) => {
-    const res = await fetch(`/api/tasks/${taskId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    const updatedTask: Task = await res.json();
-    set((state) => ({
-      tasks: state.tasks.map((t) => (t.id === taskId ? updatedTask : t)),
-    }));
+    try {
+      const res = await fetch(`/api/tasks/${taskId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`상태 업데이트 실패: ${res.statusText}`);
+      }
+
+      const updatedTask: Task = await res.json();
+      set((state) => ({
+        tasks: state.tasks.map((t) => (t.id === taskId ? updatedTask : t)),
+      }));
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        set({ error: `상태 업데이트 실패: ${err.message}` });
+      } else {
+        set({ error: "상태 업데이트 실패: 알 수 없는 오류" });
+      }
+    }
   },
 }));

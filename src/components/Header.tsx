@@ -1,10 +1,15 @@
 import React from "react";
 
+// 헤더 컴포넌트 props 타입 정의
 interface HeaderProps {
   themeName: "light" | "dark";
   onToggleTheme: () => void;
 }
 
+/**
+ * 앱 최상단 헤더 UI
+ * - 제목을 표시하고, 다크/라이트 모드를 전환할 수 있는 버튼 제공
+ */
 const Header: React.FC<HeaderProps> = ({ themeName, onToggleTheme }) => {
   return (
     <header
@@ -24,6 +29,7 @@ const Header: React.FC<HeaderProps> = ({ themeName, onToggleTheme }) => {
           themeName === "light" ? "1px solid #e5e7eb" : "1px solid #2a2a2a",
       }}
     >
+      {/* 대시보드 제목 */}
       <h1
         style={{
           margin: 0,
@@ -34,6 +40,8 @@ const Header: React.FC<HeaderProps> = ({ themeName, onToggleTheme }) => {
       >
         프로젝트 대시보드
       </h1>
+
+      {/* 테마 토글 버튼 */}
       <button
         onClick={onToggleTheme}
         style={{
@@ -54,6 +62,7 @@ const Header: React.FC<HeaderProps> = ({ themeName, onToggleTheme }) => {
           e.currentTarget.style.opacity = "1";
         }}
       >
+        {/* 🌙: 다크 모드로 전환 / ☀️: 라이트 모드로 전환 */}
         {themeName === "light" ? "🌙" : "☀️"}
       </button>
     </header>

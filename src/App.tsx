@@ -2,7 +2,7 @@ import React, { useEffect, useCallback } from "react";
 import { useProjects } from "./hooks/useProjects";
 import { useUsers } from "./hooks/useUsers";
 import { useTheme } from "./hooks/useTheme";
-import { useNewTaskForm } from "./hooks/useNewTaskForm";
+import { useNewTaskForm } from "./stores/useNewTaskForm";
 import { useTaskFilters } from "./hooks/useTaskFilters";
 import { useProjectStore } from "./stores/useProjectStore";
 import { useTaskStore } from "./stores/useTaskStore";
@@ -30,7 +30,7 @@ function App() {
   const { newTaskTitle, newTaskAssignee, setNewTaskAssignee, resetForm } =
     useNewTaskForm();
 
-  // 사용자 데이터
+  // 사용자 데이터 로딩 + 최초 사용자 자동 할당
   const handleFirstUserId = useCallback(
     (firstId: string) => {
       if (newTaskAssignee === "") {
@@ -39,10 +39,9 @@ function App() {
     },
     [newTaskAssignee, setNewTaskAssignee]
   );
-
   const { users, isLoadingUsers, userError } = useUsers(handleFirstUserId);
 
-  // 할 일 데이터
+  // 할 일 데이터 관련 상태 및 메서드
   const {
     tasks,
     isLoading: isLoadingTasks,
@@ -52,38 +51,39 @@ function App() {
     updateTaskStatus,
   } = useTaskStore();
 
-  // 프로젝트 변경 시 할 일 목록 로드
+  // 선택된 프로젝트 변경 시 할 일 목록 로드
   useEffect(() => {
     if (selectedProjectId) {
       fetchTasks(selectedProjectId);
     }
   }, [selectedProjectId, fetchTasks]);
 
-  // 필터
+  // 필터 및 검색 상태
   const { filterStatus, setFilterStatus, searchTerm, setSearchTerm } =
     useTaskFilters();
 
-  // 테마
+  // 테마 상태 및 토글 함수
   const { themeName, theme: currentTheme, toggleTheme } = useTheme();
 
-  // 종합 로딩/에러
+  // 모든 API의 로딩/에러 상태 통합
   const error = projectError || userError || taskError;
   const isLoadingAll = isLoading || isLoadingUsers || isLoadingTasks;
 
-  // 새 할 일 추가
+  // 새 할 일 추가 핸들러
   const handleAddTask = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // 제목, 담당자, 프로젝트가 선택되어야만 추가 가능
     if (!newTaskTitle || !newTaskAssignee || selectedProjectId === null) {
       console.warn("조건 미충족으로 작업 종료");
       return;
     }
 
     addTask(newTaskTitle, parseInt(newTaskAssignee), selectedProjectId);
-    resetForm();
+    resetForm(); // 입력 초기화
   };
 
-  // 할 일 상태 변경
+  // 개별 할 일의 상태 변경 핸들러
   const handleStatusChange = (taskId: number, newStatus: Status) => {
     updateTaskStatus(taskId, newStatus);
   };
@@ -95,6 +95,7 @@ function App() {
     setSearchTerm("");
   }, [selectedProjectId, resetForm, setFilterStatus, setSearchTerm]);
 
+  // 렌더링
   return (
     <div
       style={{
@@ -107,8 +108,10 @@ function App() {
         transition: "background-color 0.2s ease, color 0.2s ease",
       }}
     >
+      {/* 상단 헤더: 테마 토글 */}
       <Header themeName={themeName} onToggleTheme={toggleTheme} />
 
+      {/* 에러 메시지 출력 */}
       {error && (
         <div
           style={{
@@ -132,6 +135,7 @@ function App() {
           gap: "24px",
         }}
       >
+        {/* 좌측: 프로젝트 목록 */}
         <ProjectList
           projects={projects}
           selectedProjectId={selectedProjectId}
@@ -140,6 +144,7 @@ function App() {
           theme={currentTheme}
         />
 
+        {/* 우측: 할 일 추가 및 목록 */}
         <section
           style={{ display: "flex", flexDirection: "column", gap: "20px" }}
         >

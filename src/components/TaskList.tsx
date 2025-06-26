@@ -25,6 +25,7 @@ const TaskList: React.FC<TaskListProps> = ({
   isLoading,
   theme,
 }) => {
+  // 필터 + 검색어 기반으로 tasks 필터링
   const filteredTasks = tasks
     .filter((task) => filterStatus === "All" || task.status === filterStatus)
     .filter((task) =>
@@ -41,6 +42,7 @@ const TaskList: React.FC<TaskListProps> = ({
         border: `1px solid ${theme.border}`,
       }}
     >
+      {/* 제목 + 검색창 + 상태 필터 */}
       <div
         style={{
           display: "flex",
@@ -61,6 +63,8 @@ const TaskList: React.FC<TaskListProps> = ({
         >
           할 일 목록
         </h2>
+
+        {/* 검색창 + 상태 필터 */}
         <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
           <input
             type="text"
@@ -85,6 +89,7 @@ const TaskList: React.FC<TaskListProps> = ({
               e.currentTarget.style.borderColor = theme.border;
             }}
           />
+
           <select
             value={filterStatus}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
@@ -110,6 +115,7 @@ const TaskList: React.FC<TaskListProps> = ({
         </div>
       </div>
 
+      {/* 로딩 중 상태 */}
       {isLoading ? (
         <div style={{ textAlign: "center", padding: "40px" }}>
           <div
@@ -128,6 +134,7 @@ const TaskList: React.FC<TaskListProps> = ({
           </p>
         </div>
       ) : filteredTasks.length === 0 ? (
+        // 필터된 할 일이 없을 경우
         <div
           style={{
             textAlign: "center",
@@ -139,6 +146,7 @@ const TaskList: React.FC<TaskListProps> = ({
           할 일이 없습니다
         </div>
       ) : (
+        // 필터된 할 일 리스트 출력
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           {filteredTasks.map((task) => {
             const user = users.find((u) => u.id === task.assigneeId);

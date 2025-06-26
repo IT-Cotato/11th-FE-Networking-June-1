@@ -33,12 +33,16 @@ const TaskItem: React.FC<TaskItemProps> = ({
         e.currentTarget.style.backgroundColor = theme.componentBg;
       }}
     >
+      {/* 할 일 제목 */}
       <div style={{ flex: 1 }}>
         <span style={{ fontSize: "14px", color: theme.text }}>
           {task.title}
         </span>
       </div>
+
+      {/* 담당자 + 상태 변경 드롭다운 */}
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        {/* 담당자 이름 배지 */}
         <span
           style={{
             padding: "4px 8px",
@@ -51,6 +55,8 @@ const TaskItem: React.FC<TaskItemProps> = ({
         >
           {assigneeName}
         </span>
+
+        {/* 상태 변경 드롭다운 */}
         <select
           value={task.status}
           onChange={(e) =>
