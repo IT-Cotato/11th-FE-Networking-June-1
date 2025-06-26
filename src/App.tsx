@@ -1,8 +1,7 @@
-import React, { useEffect, useCallback } from "react";
+import { useEffect } from "react";
 import { useProjects } from "./hooks/useProjects";
 import { useUsers } from "./hooks/useUsers";
 import { useTheme } from "./hooks/useTheme";
-import { useNewTaskForm } from "./stores/useNewTaskForm";
 import { useTaskFilters } from "./hooks/useTaskFilters";
 import { useProjectStore } from "./stores/useProjectStore";
 import { useTaskStore } from "./stores/useTaskStore";
@@ -26,20 +25,8 @@ function App() {
   // 프로젝트 데이터 초기 로딩 (1회)
   useProjects();
 
-  // TaskForm 상태
-  const { newTaskTitle, newTaskAssignee, setNewTaskAssignee, resetForm } =
-    useNewTaskForm();
-
-  // 사용자 데이터 로딩 + 최초 사용자 자동 할당
-  const handleFirstUserId = useCallback(
-    (firstId: string) => {
-      if (newTaskAssignee === "") {
-        setNewTaskAssignee(firstId);
-      }
-    },
-    [newTaskAssignee, setNewTaskAssignee]
-  );
-  const { users, isLoadingUsers, userError } = useUsers(handleFirstUserId);
+  // 사용자 목록
+  const { users, isLoadingUsers, userError } = useUsers();
 
   // 할 일 데이터 관련 상태 및 메서드
   const {
@@ -70,17 +57,9 @@ function App() {
   const isLoadingAll = isLoading || isLoadingUsers || isLoadingTasks;
 
   // 새 할 일 추가 핸들러
-  const handleAddTask = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    // 제목, 담당자, 프로젝트가 선택되어야만 추가 가능
-    if (!newTaskTitle || !newTaskAssignee || selectedProjectId === null) {
-      console.warn("조건 미충족으로 작업 종료");
-      return;
-    }
-
-    addTask(newTaskTitle, parseInt(newTaskAssignee), selectedProjectId);
-    resetForm(); // 입력 초기화
+  const handleAddTask = (title: string, assigneeId: string) => {
+    if (!title || !assigneeId || selectedProjectId === null) return;
+    addTask(title, parseInt(assigneeId), selectedProjectId);
   };
 
   // 개별 할 일의 상태 변경 핸들러
@@ -90,10 +69,9 @@ function App() {
 
   // 프로젝트 변경 시 필터 및 폼 초기화
   useEffect(() => {
-    resetForm();
     setFilterStatus("All");
     setSearchTerm("");
-  }, [selectedProjectId, resetForm, setFilterStatus, setSearchTerm]);
+  }, [selectedProjectId, setFilterStatus, setSearchTerm]);
 
   // 렌더링
   return (

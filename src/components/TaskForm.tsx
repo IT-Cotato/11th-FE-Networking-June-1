@@ -1,10 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import type { User, Theme } from "../types";
-import { useNewTaskForm } from "../stores/useNewTaskForm";
 
-// 할 일 추가 폼 컴포넌트
 export interface TaskFormProps {
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  onSubmit: (title: string, assigneeId: string) => void;
   users: User[];
   isLoading: boolean;
   theme: Theme;
@@ -16,9 +14,23 @@ const TaskForm: React.FC<TaskFormProps> = ({
   isLoading,
   theme,
 }) => {
-  // 새 할 일의 제목 및 담당자 상태
-  const { newTaskTitle, setNewTaskTitle, newTaskAssignee, setNewTaskAssignee } =
-    useNewTaskForm();
+  const [title, setTitle] = useState("");
+  const [assignee, setAssignee] = useState("");
+
+  // 사용자 목록이 바뀔 때 초기 담당자 설정
+  useEffect(() => {
+    if (users.length > 0 && !assignee) {
+      setAssignee(String(users[0].id));
+    }
+  }, [users, assignee]);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!title || !assignee) return;
+    onSubmit(title, assignee);
+    setTitle("");
+    setAssignee(users.length > 0 ? String(users[0].id) : "");
+  };
 
   return (
     <div
@@ -41,16 +53,14 @@ const TaskForm: React.FC<TaskFormProps> = ({
         새로운 할 일 추가
       </h3>
 
-      {/* 할 일 추가 폼 */}
       <form
-        onSubmit={onSubmit}
+        onSubmit={handleSubmit}
         style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}
       >
-        {/* 할 일 제목 입력 */}
         <input
           type="text"
-          value={newTaskTitle}
-          onChange={(e) => setNewTaskTitle(e.target.value)}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
           placeholder="할 일 제목을 입력하세요..."
           style={{
             flex: "1",
@@ -61,21 +71,13 @@ const TaskForm: React.FC<TaskFormProps> = ({
             fontSize: "14px",
             backgroundColor: theme.inputBg,
             color: theme.text,
-            transition: "border-color 0.2s ease",
             outline: "none",
-          }}
-          onFocus={(e) => {
-            e.currentTarget.style.borderColor = "#8b5cf6";
-          }}
-          onBlur={(e) => {
-            e.currentTarget.style.borderColor = theme.border;
           }}
         />
 
-        {/* 담당자 선택 */}
         <select
-          value={newTaskAssignee}
-          onChange={(e) => setNewTaskAssignee(e.target.value)}
+          value={assignee}
+          onChange={(e) => setAssignee(e.target.value)}
           disabled={isLoading}
           style={{
             padding: "10px 12px",
@@ -96,7 +98,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
           ))}
         </select>
 
-        {/* 추가 버튼 */}
         <button
           type="submit"
           disabled={isLoading}
@@ -109,18 +110,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
             borderRadius: "8px",
             fontSize: "14px",
             fontWeight: "500",
-            transition: "all 0.2s ease",
             opacity: isLoading ? 0.6 : 1,
-          }}
-          onMouseEnter={(e) => {
-            if (!isLoading) {
-              e.currentTarget.style.opacity = "0.9";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isLoading) {
-              e.currentTarget.style.opacity = "1";
-            }
           }}
         >
           {isLoading ? "추가 중..." : "추가"}
