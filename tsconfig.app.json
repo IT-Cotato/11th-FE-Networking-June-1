@@ -21,7 +21,11 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "baseUrl": ".",                       // ← 추가
+    "paths": {
+      "@/*": ["src/*"]                    // ← 추가
+    }
   },
   "include": ["src"]
 }
