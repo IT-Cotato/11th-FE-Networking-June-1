@@ -1,18 +1,17 @@
-import { useState } from "react";
+import { create } from "zustand";
 
-export const useNewTaskForm = () => {
-  const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [newTaskAssignee, setNewTaskAssignee] = useState("");
+interface NewTaskFormStore {
+  newTaskTitle: string;
+  setNewTaskTitle: (title: string) => void;
+  newTaskAssignee: string;
+  setNewTaskAssignee: (assignee: string) => void;
+  resetForm: () => void;
+}
 
-  const resetForm = () => {
-    setNewTaskTitle("");
-  };
-
-  return {
-    newTaskTitle,
-    setNewTaskTitle,
-    newTaskAssignee,
-    setNewTaskAssignee,
-    resetForm,
-  };
-};
+export const useNewTaskForm = create<NewTaskFormStore>((set) => ({
+  newTaskTitle: "",
+  newTaskAssignee: "",
+  setNewTaskTitle: (title) => set({ newTaskTitle: title }),
+  setNewTaskAssignee: (assignee) => set({ newTaskAssignee: assignee }),
+  resetForm: () => set({ newTaskTitle: "", newTaskAssignee: "" }),
+}));

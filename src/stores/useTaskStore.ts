@@ -38,19 +38,32 @@ export const useTaskStore = create<TaskStore>((set) => ({
   },
 
   addTask: async (title, assigneeId, projectId) => {
-    const payload = {
-      projectId,
-      title,
-      status: "To Do",
-      assigneeId,
-    };
-    const res = await fetch("/api/tasks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const newTask: Task = await res.json();
-    set((state) => ({ tasks: [...state.tasks, newTask] }));
+    try {
+      const payload = {
+        projectId,
+        title,
+        status: "To Do",
+        assigneeId,
+      };
+      const res = await fetch("/api/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        throw new Error(`할 일 추가 실패: ${res.statusText}`);
+      }
+
+      const newTask: Task = await res.json();
+      set((state) => ({ tasks: [...state.tasks, newTask] }));
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        set({ error: `할 일 추가 실패: ${err.message}` });
+      } else {
+        set({ error: "할 일 추가 실패: 알 수 없는 오류" });
+      }
+    }
   },
 
   updateTaskStatus: async (taskId, status) => {

@@ -33,9 +33,11 @@ function App() {
   // 사용자 데이터
   const handleFirstUserId = useCallback(
     (firstId: string) => {
-      setNewTaskAssignee((prev) => (prev === "" ? firstId : prev));
+      if (newTaskAssignee === "") {
+        setNewTaskAssignee(firstId);
+      }
     },
-    [setNewTaskAssignee]
+    [newTaskAssignee, setNewTaskAssignee]
   );
 
   const { users, isLoadingUsers, userError } = useUsers(handleFirstUserId);
@@ -71,7 +73,12 @@ function App() {
   // 새 할 일 추가
   const handleAddTask = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!newTaskTitle || !newTaskAssignee || selectedProjectId === null) return;
+
+    if (!newTaskTitle || !newTaskAssignee || selectedProjectId === null) {
+      console.warn("조건 미충족으로 작업 종료");
+      return;
+    }
+
     addTask(newTaskTitle, parseInt(newTaskAssignee), selectedProjectId);
     resetForm();
   };
