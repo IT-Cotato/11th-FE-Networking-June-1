@@ -1,5 +1,4 @@
-import React from "react";
-import { Theme, ThemeName } from "@/types";
+import type { Theme, ThemeName } from "../types";
 
 interface HeaderProps {
   themeName: ThemeName;
