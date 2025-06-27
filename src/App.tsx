@@ -1,6 +1,5 @@
-import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Dashboard from "@/pages/Dashboard";
+import Dashboard from "@/pages/DashBoard";
 
 // 1. QueryClient 인스턴스 생성
 const queryClient = new QueryClient();
